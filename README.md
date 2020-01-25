@@ -6,8 +6,6 @@
 * http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html
 * https://errorprone.info/bugpattern/DoubleCheckedLocking
 * https://wiki.sei.cmu.edu/confluence/display/java/LCK10-J.+Use+a+correct+form+of+the+double-checked+locking+idiom
-
-* synchronization
 * https://github.com/mtumilowicz/java8-concurrency-jcstress-happens-before
 
 * 3.5 Safe publication
@@ -35,7 +33,6 @@
         }
         
         ```
-    
         * Two things can go wrong
           with improperly published objects. Other threads could see a stale value for the
           holder field, and thus see a null reference or other older value even though a
@@ -44,6 +41,28 @@
         * a thread may see a stale value the first time
           it reads a field and then a more up-to-date value the next time, which is why
           assertSanity can throw AssertionError
+    * 3.5.2 Immutable objects and initialization safety
+        * the Java Memory Model offers a spe-
+          cial guarantee of initialization safety for sharing immutable objects
+        *  can be safely accessed even when synchro-
+          nization is not used to publish the object reference
+        * However, if final fields refer to mutable objects, synchronization is still required
+          to access the state of the objects they refer to
+    * 3.5.3 Safe publication idioms
+        * Objects that are not immutable must be safely published, which usually entails syn-
+          chronization by both the publishing and the consuming thread
+        * To publish an object safely, both the reference to the object and the ob-
+          ject’s state must be made visible to other threads at the same time. A
+          properly constructed object can be safely published by:
+          * Initializing an object reference from a static initializer;
+          * Storing a reference to it into a volatile field or AtomicReference;
+          * Storing a reference to it into a final field of a properly constructed
+          object; or
+          * Storing a reference to it into a field that is properly guarded by a
+          lock.
+        * Static initializers are executed by the JVM at class initialization time; because
+          of internal synchronization in the JVM, this mechanism is guaranteed to safely
+          publish any objects initialized in this way [JLS 12.4.2]
         
 
 * 16.2 Publication
