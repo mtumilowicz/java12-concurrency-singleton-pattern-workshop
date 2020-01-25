@@ -111,4 +111,91 @@
               has been initialized by another thread unless the publication happens-
               before the consuming thread uses it
     * 16.2.2 Safe publication
-        * https://github.com/mtumilowicz/java-this-escaping-constructor
+        * 16.2.3 Safe initialization idioms
+            * it sometimes makes sense to defer initialization of objects that are expensive to
+               initialize until they are actually needed
+            * The treatment of static fields with initializers (or fields whose value is initial-
+              ized in a static initialization block [JPL 2.2.1 and 2.5.3]) is somewhat special and
+            * offers additional thread-safety guarantees. Static initializers are run by the JVM
+              at class initialization time, after class loading but before the class is used by any
+              thread. Because the JVM acquires a lock during initialization [JLS 12.4.2] and this
+              lock is acquired by each thread at least once to ensure that the class has been
+              loaded, memory writes made during static initialization are automatically visible
+              to all threads
+            ```
+            @ThreadSafe
+            public class SafeLazyInitialization {
+                private static Resource resource;
+                public synchronized static Resource getInstance() { // do we need this synchronization?
+                    if (resource == null)
+                        resource = new Resource();
+                    return resource;
+                }
+            }
+            ```
+        * ReousrceHolder
+            * The JVM defers initializ-
+              ing the ResourceHolder class until it is actually used [JLS 12.4.1], and because the
+              Resource is initialized with a static initializer, no additional synchronization is
+              needed.
+            * The first call to getResource by any thread causes ResourceHolder to be
+              loaded and initialized, at which time the initialization of the Resource happens
+              through the static initializer.
+    * 16.2.4 Double-checked locking
+        * The real problem with DCL is the assumption that the worst thing that can
+          happen when reading a shared object reference without synchronization is to
+          erroneously see a stale value (in this case, null ); in that case the DCL idiom
+          compensates for this risk by trying again with the lock held. 
+        * But the worst case is
+            actually considerably worse—it is possible to see a current value of the reference
+            but stale values for the object’s state, meaning that the object could be seen to be
+            in an invalid or incorrect state.
+        * The lazy initialization holder
+          idiom offers the same benefits and is easier to understand.
+    * 16.3 Initialization safety
+        * Without initialization safety, supposedly immutable objects like String can
+          appear to change their value if synchronization is not used by both the publishing
+          and consuming threads
+        *  The security architecture relies on the immutability of
+          String ; the lack of initialization safety could create security vulnerabilities that
+          allow malicious code to bypass security checks
+        * Initialization safety guarantees that for properly constructed objects, all
+          threads will see the correct values of final fields that were set by the con-
+          structor, regardless of how the object is published. Further, any variables
+          that can be reached through a final field of a properly constructed object
+          (such as the elements of a final array or the contents of a HashMap refer-
+          enced by a final field) are also guaranteed to be visible to other threads. 
+        * For objects with final fields, initialization safety prohibits reordering any part
+          of construction with the initial load of a reference to that object. All writes to final
+          fields made by the constructor, as well as to any variables reachable through those
+          fields, become “frozen” when the constructor completes, and any thread that
+          obtains a reference to that object is guaranteed to see a value that is at least as up
+          to date as the frozen value. Writes that initialize variables reachable through final
+          fields are not reordered with operations following the post-construction freeze
+        ```
+        @ThreadSafe
+        public class SafeStates {
+            private final Map<String, String> states;
+            public SafeStates() {
+                states = new HashMap<String, String>();
+                states.put("alaska", "AK");
+                states.put("alabama", "AL");
+                ...
+                states.put("wyoming", "WY");
+            }
+            public String getAbbreviation(String s) {
+                return states.get(s);
+            }
+        }
+        ```
+      * However, a number of small changes to SafeStates would take away its
+        thread safety. If states were not final, or if any method other than the constructor
+        modified its contents, initialization safety would not be strong enough to safely
+        access SafeStates without synchronization. If SafeStates had other nonfinal
+        fields, other threads might still see incorrect values of those fields. And allow-
+        ing the object to escape during construction invalidates the initialization-safety
+        guarantee.
+      * Initialization safety makes visibility guarantees only for the values that
+        are reachable through final fields as of the time the constructor finishes.
+        For values reachable through nonfinal fields, or values that may change
+        after construction, you must use synchronization to ensure visibility
