@@ -39,10 +39,6 @@ public class Holder {
         * a thread may see a stale value the first time it reads a field and then a more up-to-date value the next time, 
         which is why assertSanity can throw AssertionError
 ## immutability
-* the Java Memory Model offers a special guarantee of initialization safety for sharing immutable objects
-* can be safely accessed even when synchronization is not used to publish the object reference
-* however, if final fields refer to mutable objects, synchronization is still required
-  to access the state of the objects they refer to
 ## safe publication
 * Objects that are not immutable must be safely published, which usually entails synchronization by both the 
 publishing and the consuming thread
