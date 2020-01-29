@@ -140,22 +140,19 @@ to other threads at the same time.
   idiom offers the same benefits and is easier to understand.
 
 # Initialization safety
-* Without initialization safety, supposedly immutable objects like String can
-  appear to change their value if synchronization is not used by both the publishing
-  and consuming threads
-*  The security architecture relies on the immutability of
-  String ; the lack of initialization safety could create security vulnerabilities that
-  allow malicious code to bypass security checks
-* Initialization safety guarantees that for properly constructed objects, all
-  threads will see the correct values of final fields that were set by the con-
-  structor, regardless of how the object is published. Further, any variables
-  that can be reached through a final field of a properly constructed object
+* without initialization safety, immutable objects like String can change their value (in case of no synchronization)
+* security architecture relies on the immutability of String
+* lack of initialization safety could create security vulnerabilities
+* initialization safety guarantees that for properly constructed objects, all
+  threads will see the correct values of final fields that were set by the constructor, 
+  regardless of how the object is published.
+  * any variables that can be reached through a final field of a properly constructed object
   (such as the elements of a final array or the contents of a HashMap refer-
   enced by a final field) are also guaranteed to be visible to other threads. 
-* For objects with final fields, initialization safety prohibits reordering any part
-  of construction with the initial load of a reference to that object. All writes to final
-  fields made by the constructor, as well as to any variables reachable through those
-  fields, become “frozen” when the constructor completes, and any thread that
+* for objects with final fields, initialization safety prohibits reordering any part
+  of construction with the initial load of a reference to that object. 
+* all writes to final fields made by the constructor, as well as to any variables reachable through those
+  fields, become "frozen" when the constructor completes, and any thread that
   obtains a reference to that object is guaranteed to see a value that is at least as up
   to date as the frozen value. Writes that initialize variables reachable through final
   fields are not reordered with operations following the post-construction freeze
