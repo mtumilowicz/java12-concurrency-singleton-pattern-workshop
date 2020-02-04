@@ -9,37 +9,52 @@
 * https://github.com/mtumilowicz/java8-concurrency-jcstress-happens-before
 
 # publication
-* the risks of improper publication are consequences of the
-  absence of a happens-before ordering between publishing a shared object and accessing it from another thread
-* Unfortunately, simply storing a reference to an object into a public
-  field, is not enough to publish that object safely
-* This improper publication could allow another thread to observe
-  a partially constructed object
-```
-// Unsafe publication
-public Holder holder;
-
-public void initialize() {
-    holder = new Holder(42);
-}
-
-public class Holder {
-    private int n;
-    public Holder(int n) { this.n = n; }
-
-    public void assertSanity() {
-        if (n != n)
-            throw new AssertionError("This statement is false.");
+* the risks of improper publication are consequences of the absence of a happens-before ordering between 
+publishing a shared object and accessing it from another thread
+* unfortunately, simply storing a reference to an object into a public field, is not enough to publish that 
+object safely
+* improper publication could allow another thread to observe a partially constructed object
+    ```
+    // Unsafe publication
+    public Holder holder;
+    
+    public void initialize() {
+        holder = new Holder(42);
     }
-}
-```
-* Two things can go wrong with improperly published objects. 
-    * other threads could see a stale value for the holder field
-        * see a null reference or other older value  even though a value has been placed in holder
-    * other threads could see an up-to-date value for the holder reference, but stale values for the 
-    state of the Holder
-        * a thread may see a stale value the first time it reads a field and then a more up-to-date value the next time, 
-        which is why assertSanity can throw AssertionError
+    
+    // setters, getters
+    public class Holder {
+        private int n;
+        public Holder(int n) { this.n = n; }
+    
+        public void assertSanity() {
+            if (n != n)
+                throw new AssertionError("This statement is false.");
+        }
+    }
+    ```
+    * two things can go wrong
+        * other threads could see a stale value for the holder field
+            * see a null reference or other older value even though a value has been placed in holder
+        * other threads could see an up-to-date value for the holder reference, but stale values for the 
+        state of the Holder
+            ```
+            public void initialize() {
+                var holder = new Holder(42);
+                holder.setN(50);
+                this.holder = holder;
+            }
+            ```
+            could be reordered to
+            ```
+            public void initialize() {
+                var holder = new Holder(42);
+                this.holder = holder;
+                holder.setN(50);
+            }
+            ```
+            * a thread may see a stale value the first time it reads a field and then a more up-to-date value 
+            the next time, which is why assertSanity can throw AssertionError
 ## unsafe publication
 * The possibility of reordering in the absence of a happens-before relationship ex-
   plains why publishing an object without adequate synchronization can allow an-
