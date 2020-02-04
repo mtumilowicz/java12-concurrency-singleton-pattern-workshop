@@ -55,7 +55,7 @@ object safely
                 holder.setN(50);
             }
             ```
-## unsafe publication
+# unsafe publication
 * the possibility of reordering in the absence of a happens-before relationship explains why publishing an 
 object without adequate synchronization can allow another thread to see a partially constructed object
 * unsafe publication can happen as a result of an incorrect lazy initialization
@@ -77,7 +77,6 @@ object without adequate synchronization can allow another thread to see a partia
     see the write to resource as occurring before the writes to the fields of the Resource
 * with the exception of immutable objects, it is not safe to use an object that
   has been initialized by another thread unless the publication happens-before the consuming thread uses it
-
 # safe publication
 * objects that are not immutable must be safely published, which usually entails synchronization by both the 
 publishing and the consuming thread
@@ -92,10 +91,9 @@ to other threads at the same time
             publish any objects initialized in this way [JLS 12.4.2]
     * storing a reference to it into a volatile field or AtomicReference
     * storing a reference to it into a final field of a properly constructed object
-    * storing a reference to it into a field that is properly guarded by a lock
-    
-## singleton case studies
-### eager initialization
+    * storing a reference to it into a field that is properly guarded by a lock 
+# case studies
+## singleton eager initialization
 ```
 class EagerSingleton {
     private static Resource resource = new Resource();
@@ -105,7 +103,7 @@ class EagerSingleton {
     }
 }
 ```
-### lazy initialization
+## singleton lazy initialization
 * it sometimes makes sense to defer initialization of objects that are expensive to initialize 
 until they are actually needed
 * the treatment of static fields with initializers (or fields whose value is initialized in a static 
@@ -135,8 +133,7 @@ public class LazySingleton {
 * the first call to getResource by any thread causes ResourceHolder to be
   loaded and initialized (the JVM defers initializing the ResourceHolder class until it is actually used [JLS 12.4.1]), 
   at which time the initialization of the Resource happens through the static initializer
-
-### double-checked locking
+## double-checked locking
 ```
 @NotThreadSafe
 class DoubleCheckedLockingSingleton {
@@ -159,8 +156,7 @@ class DoubleCheckedLockingSingleton {
 * but the worst case - it is possible to see a current value of the reference but stale values 
 for the object’s state - object could be seen to be in an invalid or incorrect state
 * the lazy initialization holder idiom offers the same benefits and is easier to understand
-
-# initialization safety
+## immutability context
 * without initialization safety, immutable objects like String can change their value (in case of no synchronization)
 * security architecture relies on the immutability of String
     * lack of initialization safety could create security vulnerabilities
