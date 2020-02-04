@@ -131,7 +131,7 @@ to other threads at the same time.
   of internal synchronization in the JVM, this mechanism is guaranteed to safely
   publish any objects initialized in this way [JLS 12.4.2]        
 
-# Double-checked locking
+# double-checked locking
 ```
 @NotThreadSafe
 class DoubleCheckedLockingSingleton {
