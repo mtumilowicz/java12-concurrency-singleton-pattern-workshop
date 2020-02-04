@@ -77,6 +77,7 @@ object without adequate synchronization can allow another thread to see a partia
     see the write to resource as occurring before the writes to the fields of the Resource
 * with the exception of immutable objects, it is not safe to use an object that
   has been initialized by another thread unless the publication happens-before the consuming thread uses it
+
 # safe publication
 * objects that are not immutable must be safely published, which usually entails synchronization by both the 
 publishing and the consuming thread
@@ -93,8 +94,8 @@ to other threads at the same time
     * storing a reference to it into a final field of a properly constructed object
     * storing a reference to it into a field that is properly guarded by a lock
     
-## use cases
-### eager
+## singleton case studies
+### eager initialization
 ```
 class EagerSingleton {
     private static Resource resource = new Resource();
@@ -104,7 +105,7 @@ class EagerSingleton {
     }
 }
 ```
-### lazy
+### lazy initialization
 * it sometimes makes sense to defer initialization of objects that are expensive to initialize 
 until they are actually needed
 * the treatment of static fields with initializers (or fields whose value is initialized in a static 
@@ -135,7 +136,7 @@ public class LazySingleton {
   loaded and initialized (the JVM defers initializing the ResourceHolder class until it is actually used [JLS 12.4.1]), 
   at which time the initialization of the Resource happens through the static initializer
 
-# double-checked locking
+### double-checked locking
 ```
 @NotThreadSafe
 class DoubleCheckedLockingSingleton {
@@ -155,9 +156,8 @@ class DoubleCheckedLockingSingleton {
 * the real problem with DCL is the assumption that the worst thing that can
     happen when reading a shared object reference without synchronization is to
     erroneously see a stale value (in this case, null )
-* in that case the DCL idiom compensates for this risk by trying again with the lock held
 * but the worst case - it is possible to see a current value of the reference but stale values 
-for the object’s state, meaning that the object could be seen to be in an invalid or incorrect state
+for the object’s state - object could be seen to be in an invalid or incorrect state
 * the lazy initialization holder idiom offers the same benefits and is easier to understand
 
 # initialization safety
