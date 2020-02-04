@@ -8,7 +8,7 @@
 * https://wiki.sei.cmu.edu/confluence/display/java/LCK10-J.+Use+a+correct+form+of+the+double-checked+locking+idiom
 * https://github.com/mtumilowicz/java8-concurrency-jcstress-happens-before
 
-# publication
+# introduction
 * the risks of improper publication are consequences of the absence of a happens-before ordering between 
 publishing a shared object and accessing it from another thread
 * unfortunately, simply storing a reference to an object into a public field, is not enough to publish that 
@@ -75,61 +75,65 @@ object without adequate synchronization can allow another thread to see a partia
     order than A performed them 
     * so even though A initialized the Resource before setting resource to reference it, B could 
     see the write to resource as occurring before the writes to the fields of the Resource
-    * with the exception of immutable objects, it is not safe to use an object that
-      has been initialized by another thread unless the publication happens-before the consuming thread uses it
-## safe publication
-* it sometimes makes sense to defer initialization of objects that are expensive to initialize 
-until they are actually needed
-* the treatment of static fields with initializers (or fields whose value is initialized in a static 
-initialization block is somewhat special and offers additional thread-safety guarantees. 
-    * static initializers are run by the JVM at class initialization time, after class loading but 
-    before the class is used by any thread
-    * because the JVM acquires a lock during initialization [JLS 12.4.2] and this lock is acquired by 
-    each thread at least once to ensure that the class has been loaded, memory writes made during static 
-    initialization are automatically visible to all threads
-    ```
-    @ThreadSafe
-    public class SafeLazyInitialization {
-        private static Resource resource;
-        public synchronized static Resource getInstance() { // do we need this synchronization?
-            if (resource == null)
-                resource = new Resource();
-            return resource;
-        }
-    }
-    ```
-* ResourceHolder
-    ```
-    @ThreadSafe
-    public class LazySingleton {
-        private static class ResourceHolder {
-            public static Resource resource = new Resource();
-        }
-        public static Resource getResource() {
-            return ResourceHolder.resource;
-        }
-    }
-    ```
-    * the JVM defers initializing the ResourceHolder class until it is actually used [JLS 12.4.1], and because the
-      Resource is initialized with a static initializer, no additional synchronization is
-      needed
-    * the first call to getResource by any thread causes ResourceHolder to be
-      loaded and initialized, at which time the initialization of the Resource happens
-      through the static initializer
-## immutability
-## safe publication
+* with the exception of immutable objects, it is not safe to use an object that
+  has been initialized by another thread unless the publication happens-before the consuming thread uses it
+# safe publication
 * objects that are not immutable must be safely published, which usually entails synchronization by both the 
 publishing and the consuming thread
 * to publish an object safely, both the reference to the object and the object’s state must be made visible 
-to other threads at the same time. 
+to other threads at the same time
 * a properly constructed object can be safely published by:
     * initializing an object reference from a static initializer
+        * static initializers are run by the JVM at class initialization time, after class loading but 
+            before the class is used by any thread
+        * static initializers are executed by the JVM at class initialization time
+            * because of internal synchronization in the JVM, this mechanism is guaranteed to safely
+            publish any objects initialized in this way [JLS 12.4.2]
     * storing a reference to it into a volatile field or AtomicReference
     * storing a reference to it into a final field of a properly constructed object
     * storing a reference to it into a field that is properly guarded by a lock
-* static initializers are executed by the JVM at class initialization time; because
-  of internal synchronization in the JVM, this mechanism is guaranteed to safely
-  publish any objects initialized in this way [JLS 12.4.2]        
+    
+## use cases
+### eager
+```
+class EagerSingleton {
+    private static Resource resource = new Resource();
+
+    public static Resource getResource() {
+        return resource;
+    }
+}
+```
+### lazy
+* it sometimes makes sense to defer initialization of objects that are expensive to initialize 
+until they are actually needed
+* the treatment of static fields with initializers (or fields whose value is initialized in a static 
+initialization block is somewhat special and offers additional thread-safety guarantees
+```
+@ThreadSafe
+public class SafeLazyInitialization {
+    private static Resource resource;
+    public synchronized static Resource getInstance() { // do we need this synchronization?
+        if (resource == null)
+            resource = new Resource();
+        return resource;
+    }
+}
+```
+```
+@ThreadSafe
+public class LazySingleton {
+    private static class ResourceHolder {
+        public static Resource resource = new Resource();
+    }
+    public static Resource getResource() {
+        return ResourceHolder.resource;
+    }
+}
+```
+* the first call to getResource by any thread causes ResourceHolder to be
+  loaded and initialized (the JVM defers initializing the ResourceHolder class until it is actually used [JLS 12.4.1]), 
+  at which time the initialization of the Resource happens through the static initializer
 
 # double-checked locking
 ```
