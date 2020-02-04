@@ -2,7 +2,10 @@ package singleton;
 
 import resource.Resource;
 
-public class EagerSingleton {
+class EagerSingleton {
     private static Resource resource = new Resource();
-    public static Resource getResource() { return resource; }
+
+    public static Resource getResource() {
+        return resource;
+    }
 }

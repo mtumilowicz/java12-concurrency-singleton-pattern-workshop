@@ -2,7 +2,7 @@ package singleton;
 
 import resource.Resource;
 
-public class DoubleCheckedLockingSingleton {
+class DoubleCheckedLockingSingleton {
     private static volatile Resource resource;
 
     public static Resource getInstance() {
