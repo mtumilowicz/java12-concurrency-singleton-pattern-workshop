@@ -1,8 +1,8 @@
-package singleton;
+package answers;
 
 import resource.Resource;
 
-class LazySingleton {
+class LazySingletonAnswer {
     private static class ResourceHolder {
         public static Resource resource = new Resource();
     }

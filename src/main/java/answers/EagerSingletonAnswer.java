@@ -1,8 +1,8 @@
-package singleton;
+package answers;
 
 import resource.Resource;
 
-class EagerSingleton {
+class EagerSingletonAnswer {
     private static Resource resource = new Resource();
 
     public static Resource getResource() {

@@ -1,13 +1,13 @@
-package singleton;
+package answers;
 
 import resource.Resource;
 
-class DoubleCheckedLockingSingleton {
+class DoubleCheckedLockingSingletonAnswer {
     private static volatile Resource resource;
 
     public static Resource getInstance() {
         if (resource == null) {
-            synchronized (DoubleCheckedLockingSingleton.class) {
+            synchronized (DoubleCheckedLockingSingletonAnswer.class) {
                 if (resource == null)
                     resource = new Resource();
             }

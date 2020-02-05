@@ -1,8 +1,8 @@
-package singleton;
+package answers;
 
 import resource.Resource;
 
-enum EnumSingleton {
+enum EnumSingletonAnswer {
     INSTANCE;
 
     public final Resource resource = new Resource();
