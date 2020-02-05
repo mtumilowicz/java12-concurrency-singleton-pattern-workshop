@@ -3,5 +3,5 @@ package workshop;
 import resource.Resource;
 
 class DoubleCheckedLockingSingletonWorkshop {
-    // Resource with DCL initialization
+    // Resource singleton with lazy initialization using DCL
 }
