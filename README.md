@@ -8,6 +8,13 @@
 * https://wiki.sei.cmu.edu/confluence/display/java/LCK10-J.+Use+a+correct+form+of+the+double-checked+locking+idiom
 * https://github.com/mtumilowicz/java8-concurrency-jcstress-happens-before
 
+# preface
+* goals of this workshop:
+    * basics of object publication in the multithreaded environment
+    * immutability in the context of thread safety
+    * basics threats while sharing objects in multithreaded environment
+    * become acquainted with double-checked locking
+* workshop: `workshop` package, answers: `answers` package
 # introduction
 * the risks of improper publication are consequences of the absence of a happens-before ordering between 
 publishing a shared object and accessing it from another thread
