@@ -1,7 +1,7 @@
 # java12-concurrency-singleton-workshop
 
 * https://www.amazon.com/Java-Concurrency-Practice-Brian-Goetz/dp/0321349601
-* [WJUG #257 - Krzysztof Ślusarski - Just-In-Time compiler - ukryty "przyjaciel"](https://www.youtube.com/watch?v=f8zaYDJctTA) 42.25
+* [WJUG #257 - Krzysztof Ślusarski - Just-In-Time compiler - ukryty "przyjaciel"](https://www.youtube.com/watch?v=f8zaYDJctTA)
 * https://stackoverflow.com/questions/29883403/double-checked-locking-without-volatile
 * http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html
 * https://errorprone.info/bugpattern/DoubleCheckedLocking
@@ -71,6 +71,12 @@ object without adequate synchronization can allow another thread to see a partia
         }
     }
     ```
+    * note that: `resource = new Resource()` is not atomic - it something like
+        ```
+        local = calloc(sizeof(Resource.class)); // allocate memory
+        local.<init>(); // constructor
+        helper = local; // assign to field
+        ```
     * since neither thread used synchronization, B could possibly see A’s actions in a different 
     order than A performed them 
     * so even though A initialized the Resource before setting resource to reference it, B could 
@@ -152,7 +158,7 @@ class DoubleCheckedLockingSingleton {
 ```
 * the real problem with DCL is the assumption that the worst thing that can
     happen when reading a shared object reference without synchronization is to
-    erroneously see a stale value (in this case, null )
+    erroneously see a stale value (in this case, null)
 * but the worst case - it is possible to see a current value of the reference but stale values 
 for the object’s state - object could be seen to be in an invalid or incorrect state
 * the lazy initialization holder idiom offers the same benefits and is easier to understand
