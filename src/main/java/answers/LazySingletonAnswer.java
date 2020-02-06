@@ -7,7 +7,7 @@ class LazySingletonAnswer {
         static Resource resource = new Resource();
     }
 
-    public static Resource getInstance() {
+    static Resource getInstance() {
         return ResourceHolder.resource;
     }
 }

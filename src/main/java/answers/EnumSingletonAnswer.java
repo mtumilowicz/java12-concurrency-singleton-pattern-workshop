@@ -5,5 +5,9 @@ import resource.Resource;
 enum EnumSingletonAnswer {
     INSTANCE;
 
-    final Resource resource = new Resource();
+    private final Resource resource = new Resource();
+
+    Resource get() {
+        return resource;
+    }
 }
