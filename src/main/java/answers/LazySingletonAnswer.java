@@ -4,10 +4,10 @@ import resource.Resource;
 
 class LazySingletonAnswer {
     private static class ResourceHolder {
-        public static Resource resource = new Resource();
+        static Resource resource = new Resource();
     }
 
-    public static Resource getResource() {
+    public static Resource getInstance() {
         return ResourceHolder.resource;
     }
 }
