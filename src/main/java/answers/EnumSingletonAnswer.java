@@ -7,7 +7,7 @@ enum EnumSingletonAnswer {
 
     private final Resource resource = new Resource();
 
-    Resource get() {
-        return resource;
+    static Resource getInstance() {
+        return INSTANCE.resource;
     }
 }

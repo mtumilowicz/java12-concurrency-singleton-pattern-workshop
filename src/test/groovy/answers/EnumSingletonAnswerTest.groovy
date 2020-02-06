@@ -20,7 +20,7 @@ class EnumSingletonAnswerTest extends Specification {
 
         and: 'task to add singleton instance to list'
         Runnable task = {
-            concurrentList.push(singleton.INSTANCE.get())
+            concurrentList.push(singleton.instance)
             latch.countDown()
         }
 
