@@ -173,10 +173,10 @@ class DoubleCheckedLockingSingleton {
   
     // compiled into
     local1 = calloc(sizeof(Point));
-    local1.<init>(x, y)
-    Object.<init>();
-    this.x = x;
-    this.y = y;
+    local1.<init>(x, y);
+        Object.<init>();
+        this.x = x;
+        this.y = y;
     sharedPoint = local1;
     ```
     * operations could be reordered
