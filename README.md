@@ -10,6 +10,7 @@
     * https://errorprone.info/bugpattern/DoubleCheckedLocking
     * https://wiki.sei.cmu.edu/confluence/display/java/LCK10-J.+Use+a+correct+form+of+the+double-checked+locking+idiom
     * https://github.com/mtumilowicz/java8-concurrency-jcstress-happens-before
+    * [Concurrency Concepts in Java by Douglas Hawkins](https://www.youtube.com/watch?v=ADxUsCkWdbE)
 
 # preface
 * goals of this workshop:
@@ -166,6 +167,47 @@ class DoubleCheckedLockingSingleton {
     }
 }
 ```
+* creating with constructor is not an atomic operation
+    ```
+    Point sharedPoint = new Point(x, y);
+  
+    // compiled into
+    local1 = calloc(sizeof(Point));
+    local1.<init>(x, y)
+    Object.<init>();
+    this.x = x;
+    this.y = y;
+    sharedPoint = local1;
+    ```
+    * operations could be reordered
+        ```
+        Point sharedPoint = new Point(x, y);
+      
+        // compiled into
+        local1 = calloc(sizeof(Point));
+        sharedPoint = local1;
+        ...
+        ```
+* DCL after compilation and reordering
+    ```
+    @NotThreadSafe
+    class DoubleCheckedLockingSingleton {
+        private static Resource resource;
+    
+        public static Resource getInstance() {
+            if (resource == null) {
+                synchronized (DoubleCheckedLockingSingleton.class) {
+                    if (resource == null) {
+                        local = calloc(sizeof(Singleton));
+                        sharedInstance = local; // sharedInstance is non-null, but constructor hasn't run
+                        local.<init>();
+                    }
+                }
+            }
+            return resource;
+        }
+    }
+    ```
 * the real problem with DCL is the assumption that the worst thing that can
     happen when reading a shared object reference without synchronization is to
     erroneously see a stale value (in this case, null)
